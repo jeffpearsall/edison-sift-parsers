@@ -1,0 +1,9 @@
+{
+  "name": "edison-sift-parsers",
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "dependencies": {
+    "moment": ">= 2",
+    "parse-address": "^1.1.2"
+  }
+}
