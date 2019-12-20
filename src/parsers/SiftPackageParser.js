@@ -13,78 +13,79 @@ moment.updateLocale('en', {
 
 export const SiftPackageParser = async (sifts) => {
   let packages = [];
+
   for (let sift of sifts) {
+    const { payload, email_time, sift_id } = sift;
     let itemName, trackingNumber, trackingUrl, title, subTitle, status, shipperName, shipDate, vendor, images;
 
     let startTime, endTime, arrivalDate;
-    let emailTime = sift.email_time;
     let productImage = null;
 
     // Provider Name
-    if (sift.payload.provider) {
-      if (sift.payload.provider.name) {
-        shipperName = sift.payload.provider.name;
+    if (payload.provider) {
+      if (payload.provider.name) {
+        shipperName = payload.provider.name;
       }
     }
 
     // Tracking
-    if (sift.payload.trackingNumber) {
-      trackingNumber = sift.payload.trackingNumber;
+    if (payload.trackingNumber) {
+      trackingNumber = payload.trackingNumber;
     }
 
-    if (sift.payload.trackingUrl) {
-      trackingUrl = sift.payload.trackingUrl;
+    if (payload.trackingUrl) {
+      trackingUrl = payload.trackingUrl;
     }
 
     // Item Name and Image
-    if (sift.payload.itemShipped) {
-      images = sift.payload.itemShipped.map((item) => item.image);
+    if (payload.itemShipped) {
+      images = payload.itemShipped.map((item) => item.image);
 
-      if (sift.payload.itemShipped[0]) {
+      if (payload.itemShipped[0]) {
         // Set the title based on item name
-        if (sift.payload.itemShipped[0].name) {
-          itemName = sift.payload.itemShipped[0].name;
+        if (payload.itemShipped[0].name) {
+          itemName = payload.itemShipped[0].name;
           title = itemName;
         }
 
         // Set the primary image
-        if (sift.payload.itemShipped[0].image) {
-          productImage = sift.payload.itemShipped[0].image;
+        if (payload.itemShipped[0].image) {
+          productImage = payload.itemShipped[0].image;
         }
       }
     }
 
     // Start Time
-    if (sift.email_time) {
-      startTime = moment.unix(sift.email_time).format();
-      shipDate = moment.unix(sift.email_time).format('MMM D');
+    if (email_time) {
+      startTime = moment.unix(email_time).format();
+      shipDate = moment.unix(email_time).format('MMM D');
     }
 
     // Arrival Date
-    if (sift.payload.expectedArrivalUntil) {
-      endTime = sift.payload.expectedArrivalUntil;
+    if (payload.expectedArrivalUntil) {
+      endTime = payload.expectedArrivalUntil;
       arrivalDate = moment(endTime).format('MMM D');
     }
 
     const SECONDS_IN_DAY = 86400;
     const currentTime = moment().unix();
-    const timeSinceEmail = currentTime - sift.email_time;
+    const timeSinceEmail = currentTime - email_time;
     const daysSinceEmail = timeSinceEmail / SECONDS_IN_DAY;
 
     // Check if arrived
-    if (sift.payload.partOfOrder) {
+    if (payload.partOfOrder) {
       // Get vendor name
-      if (sift.payload.partOfOrder.broker) {
-        vendor = sift.payload.partOfOrder.broker.name;
+      if (payload.partOfOrder.broker) {
+        vendor = payload.partOfOrder.broker.name;
       }
 
-      if (sift.payload.partOfOrder.orderStatus === 'http://schema.org/OrderDelivered') {
+      if (payload.partOfOrder.orderStatus === 'http://schema.org/OrderDelivered') {
         subTitle = 'Package Delivered';
         status = 'Package Delivered';
         if (arrivalDate) {
           subTitle = `Delivered ${arrivalDate}`;
         }
-      } else if (sift.payload.partOfOrder.orderStatus === 'http://schema.org/OrderInTransit') {
+      } else if (payload.partOfOrder.orderStatus === 'http://schema.org/OrderInTransit') {
         subTitle = 'In Transit';
         status = 'In Transit';
         if (arrivalDate) {
@@ -97,8 +98,8 @@ export const SiftPackageParser = async (sifts) => {
     }
 
     // Subject as a title backup
-    if (!title && sift.payload['x-emailSubject']) {
-      title = sift.payload['x-emailSubject'];
+    if (!title && payload['x-emailSubject']) {
+      title = payload['x-emailSubject'];
     }
 
     // Fallback Title and Subtitle
@@ -114,15 +115,15 @@ export const SiftPackageParser = async (sifts) => {
       status = 'Package Delivery';
     }
 
-    if (status && sift.payload.expectedArrivalUntil && status !== 'Package Delivered') {
-      status = moment(sift.payload.expectedArrivalUntil).calendar();
+    if (status && payload.expectedArrivalUntil && status !== 'Package Delivered') {
+      status = moment(payload.expectedArrivalUntil).calendar();
     } else if (status === 'Package Delivered') {
       status = subTitle;
     }
 
     const displayData = {
       type: 'shipment',
-      id: sift.sift_id,
+      id: sift_id,
       title: title,
       subtitle: subTitle,
       backupIcon: 'packages',
@@ -136,44 +137,48 @@ export const SiftPackageParser = async (sifts) => {
       trackingUrl: trackingUrl,
     };
 
-    let payload = {
+    packages.push({
       type: 'shipment',
       backupIcon: 'packages',
       sift: sift,
       title: title,
       subtitle: subTitle,
-      emailTime: emailTime,
+      emailTime: email_time,
       status: status,
       startTime: startTime,
       endTime: endTime,
       trackingNumber: trackingNumber,
       primaryImage: productImage,
-      displayData: JSON.stringify(displayData),
-      vendor: sift.payload['x-vendorId'],
-    };
-
-    packages.push(payload);
+      displayData: displayData,
+      vendor: payload['x-vendorId'],
+      images: images,
+      trackingUrl: trackingUrl,
+      shipDate: shipDate,
+      featuredImage: productImage,
+      shipperName: shipperName,
+      uniqueId: createId(sift),
+    });
   }
 
-  createIds(packages);
   return packages;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    const pl = sift.sift.payload;
+const createId = (sift) => {
+  let uniqueId;
+  const { payload: pl } = sift;
 
-    if (pl.partOfOrder.orderNumber && pl.partOfOrder.broker) {
-      sift.uniqueId = 'packageId:' + pl.partOfOrder.orderNumber + pl.partOfOrder.broker.name;
-    } else if (pl.trackingNumber) {
-      sift.uniqueId = 'packageId:' + pl.trackingNumber;
-    } else if (pl.trackingUrl) {
-      sift.uniqueId = 'packageId:' + pl.trackingUrl;
-    } else {
-      sift.uniqueId = 'packageId:' + String(sift.sift.sift_id);
-    }
-
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  if (pl.partOfOrder.orderNumber && pl.partOfOrder.broker) {
+    uniqueId = 'packageId:' + pl.partOfOrder.orderNumber + pl.partOfOrder.broker.name;
+  } else if (pl.trackingNumber) {
+    uniqueId = 'packageId:' + pl.trackingNumber;
+  } else if (pl.trackingUrl) {
+    uniqueId = 'packageId:' + pl.trackingUrl;
+  } else {
+    uniqueId = 'packageId:' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+
+  return uniqueId;
 };

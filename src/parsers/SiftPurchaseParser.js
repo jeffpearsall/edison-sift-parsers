@@ -3,38 +3,38 @@ import moment from 'moment';
 export const SiftPurchaseParser = async (sifts) => {
   let purchases = [];
   for (let sift of sifts) {
+    const { payload, email_time, sift_id } = sift;
     let title, emailSubject, price, orderDate, categories, itemOffered, primaryImage, date;
     let subTitle = '';
-    let emailTime = sift.email_time;
 
     // Title
-    if (sift.payload.seller) {
-      if (sift.payload.seller.name) {
-        title = sift.payload.seller.name;
+    if (payload.seller) {
+      if (payload.seller.name) {
+        title = payload.seller.name;
       }
-    } else if (sift.payload.description) {
+    } else if (payload.description) {
       title = 'Purchase';
     }
 
     // Subtitle
-    if (sift.payload['x-price']) {
-      price = String(sift.payload['x-price']);
+    if (payload['x-price']) {
+      price = String(payload['x-price']);
     }
 
-    if (sift.payload['x-emailSubject']) {
-      emailSubject = sift.payload['x-emailSubject'];
+    if (payload['x-emailSubject']) {
+      emailSubject = payload['x-emailSubject'];
     }
 
-    if (sift.payload.acceptedOffer) {
-      if (sift.payload.acceptedOffer.length > 0) {
-        if (sift.payload.acceptedOffer[0].itemOffered) {
-          itemOffered = sift.payload.acceptedOffer[0].itemOffered.name;
+    if (payload.acceptedOffer) {
+      if (payload.acceptedOffer.length > 0) {
+        if (payload.acceptedOffer[0].itemOffered) {
+          itemOffered = payload.acceptedOffer[0].itemOffered.name;
         }
       }
     }
 
-    if (sift.payload.acceptedOffer) {
-      categories = sift.payload.acceptedOffer.map((item) => {
+    if (payload.acceptedOffer) {
+      categories = payload.acceptedOffer.map((item) => {
         if (!item) {
           return null;
         }
@@ -51,20 +51,20 @@ export const SiftPurchaseParser = async (sifts) => {
       categories = categories.filter((category) => category);
 
       if (!price) {
-        if (sift.payload.acceptedOffer[0]) {
-          if (sift.payload.acceptedOffer[0].price) {
-            price = sift.payload.acceptedOffer[0].price;
+        if (payload.acceptedOffer[0]) {
+          if (payload.acceptedOffer[0].price) {
+            price = payload.acceptedOffer[0].price;
           }
         }
       }
     }
 
-    if (sift.payload.orderDate) {
-      orderDate = moment(sift.payload.orderDate).format('MMM D');
-      date = sift.payload.orderDate;
+    if (payload.orderDate) {
+      orderDate = moment(payload.orderDate).format('MMM D');
+      date = payload.orderDate;
     } else {
-      orderDate = moment.unix(emailTime).format('MMM D');
-      date = emailTime;
+      orderDate = moment.unix(email_time).format('MMM D');
+      date = email_time;
     }
 
     if (price) {
@@ -73,16 +73,16 @@ export const SiftPurchaseParser = async (sifts) => {
       subTitle = `Purchase on ${orderDate}`;
     }
 
-    if (sift.payload.acceptedOffer[0]) {
-      if (sift.payload.acceptedOffer[0].itemOffered) {
-        if (sift.payload.acceptedOffer[0].itemOffered.image) {
-          primaryImage = sift.payload.acceptedOffer[0].itemOffered.image;
+    if (payload.acceptedOffer[0]) {
+      if (payload.acceptedOffer[0].itemOffered) {
+        if (payload.acceptedOffer[0].itemOffered.image) {
+          primaryImage = payload.acceptedOffer[0].itemOffered.image;
         }
       }
     }
 
     let displayData = {
-      id: sift.sift_id,
+      id: sift_id,
       type: 'purchase',
       title: title,
       subtitle: subTitle,
@@ -94,40 +94,43 @@ export const SiftPurchaseParser = async (sifts) => {
       itemOffered: itemOffered,
     };
 
-    let purchasePayload = {
+    purchases.push({
       type: 'purchase',
       backupIcon: 'packages',
       sift: sift,
       title: title,
       subtitle: subTitle,
-      emailTime: emailTime,
-      primaryImage: primaryImage,
-      vendor: sift.payload['x-vendorId'],
-      displayData: JSON.stringify(displayData),
+      emailTime: email_time,
       subcategories: JSON.stringify(categories),
-    };
-
-    purchases.push(purchasePayload);
+      itemOffered: itemOffered,
+      date: date,
+      price: price,
+      vendor: sift.payload['x-vendorId'],
+      displayData: displayData,
+      primaryImage: primaryImage,
+      uniqueId: createId(sift),
+    });
   }
 
-  createIds(purchases);
   return purchases;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    let pl = sift.sift.payload;
-    if (pl.orderNumber) {
-      sift.uniqueId = 'purchaseId:' + pl.orderNumber;
-    } else if (pl['x-price'] && pl.broker.name) {
-      sift.uniqueId = 'purchaseId:' + pl['x-price'] + pl.broker.name;
-    } else {
-      sift.uniqueId = 'purchaseId:' + String(sift.sift.sift_id);
-    }
+const createId = (sift) => {
+  let uniqueId;
+  const { payload: pl } = sift;
 
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  if (pl.orderNumber) {
+    uniqueId = 'purchaseId:' + pl.orderNumber;
+  } else if (pl['x-price'] && pl.broker.name) {
+    uniqueId = 'purchaseId:' + pl['x-price'] + pl.broker.name;
+  } else {
+    uniqueId = 'purchaseId:' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+
+  return uniqueId;
 };
 
 const receiptCategoryFilter = Object.freeze({

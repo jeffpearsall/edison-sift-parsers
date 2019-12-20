@@ -4,34 +4,35 @@ import parser from 'parse-address';
 export const SiftRentalParser = async (sifts) => {
   let rentals = [];
   for (let sift of sifts) {
-    let emailTime = sift.email_time;
-    let startTime = moment.unix(sift.email_time);
+    const { payload, email_time, sift_id } = sift;
+
+    let startTime = moment.unix(email_time);
     let carName, title, subTitle, pickupTime, dropoffTime, status, endTime, imageQuery;
 
-    if (sift.payload.reservationFor) {
-      if (sift.payload.reservationFor.name) {
-        carName = sift.payload.reservationFor.name;
+    if (payload.reservationFor) {
+      if (payload.reservationFor.name) {
+        carName = payload.reservationFor.name;
       }
     }
 
-    if (sift.payload.pickupTime) {
-      startTime = sift.payload.pickupTime;
+    if (payload.pickupTime) {
+      startTime = payload.pickupTime;
     }
 
-    if (sift.payload.dropoffLocation.address) {
-      let humanAddress = parser.parseLocation(sift.payload.dropoffLocation.address);
+    if (payload.dropoffLocation.address) {
+      let humanAddress = parser.parseLocation(payload.dropoffLocation.address);
       if (humanAddress.city && humanAddress.state) {
         imageQuery = `${humanAddress.city},${humanAddress.state}`;
       }
     }
 
-    if (sift.payload.dropoffTime) {
-      endTime = sift.payload.dropoffTime;
+    if (payload.dropoffTime) {
+      endTime = payload.dropoffTime;
     }
 
-    if (sift.payload.pickupTime && sift.payload.dropoffTime) {
-      pickupTime = moment(sift.payload.pickupTime).format('ddd, MMM DD');
-      dropoffTime = moment(sift.payload.dropoffTime).format('ddd, MMM DD');
+    if (payload.pickupTime && payload.dropoffTime) {
+      pickupTime = moment(payload.pickupTime).format('ddd, MMM DD');
+      dropoffTime = moment(payload.dropoffTime).format('ddd, MMM DD');
     }
 
     title = carName;
@@ -43,7 +44,7 @@ export const SiftRentalParser = async (sifts) => {
     }
 
     let displayData = {
-      id: sift.sift_id,
+      id: sift_id,
       title: title,
       subtitle: subTitle,
       backupIcon: 'carrental',
@@ -52,7 +53,7 @@ export const SiftRentalParser = async (sifts) => {
       times: status,
     };
 
-    let rentalPayload = {
+    rentals.push({
       type: 'rental',
       backupIcon: 'carrental',
       unique: true,
@@ -61,30 +62,32 @@ export const SiftRentalParser = async (sifts) => {
       title: title,
       status: status,
       subtitle: subTitle,
-      emailTime: emailTime,
+      emailTime: email_time,
       endTime: endTime,
-      vendor: sift.payload['x-vendorId'],
-      displayData: JSON.stringify(displayData),
+      vendor: payload['x-vendorId'],
+      pickupTime: pickupTime,
+      dropoffTime: dropoffTime,
+      displayData: displayData,
       imageQuery: imageQuery,
-    };
-    rentals.push(rentalPayload);
+      name: carName,
+      uniqueId: createId(sift),
+    });
   }
 
-  createIds(rentals);
   return rentals;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    const pl = sift.sift.payload;
+const createId = (sift) => {
+  let uniqueId;
+  const { payload: pl } = sift;
 
-    if (pl.reservationId) {
-      sift.uniqueId = 'rentalId:' + pl.reservationId;
-    } else {
-      sift.uniqueId = 'rentalId:' + String(sift.sift.sift_id);
-    }
-
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  if (pl.reservationId) {
+    uniqueId = 'rentalId:' + pl.reservationId;
+  } else {
+    uniqueId = 'rentalId:' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+  return uniqueId;
 };

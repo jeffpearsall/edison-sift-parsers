@@ -4,48 +4,49 @@ import moment from 'moment';
 export const SiftFlightParser = async (sifts) => {
   let flights = [];
   for (let sift of sifts) {
+    const { payload, email_time, sift_id } = sift;
+
     let title, status, destinationCity, startTime, endTime, depart, arrival, airport, city;
     let subTitle = '';
-    let emailTime = sift.email_time;
     let cancelled = false;
 
     // check if cancelled
-    if (sift.payload.reservationStatus) {
-      if (sift.payload.reservationStatus == 'http://schema.org/ReservationCancelled') {
+    if (payload.reservationStatus) {
+      if (payload.reservationStatus == 'http://schema.org/ReservationCancelled') {
         cancelled = true;
       }
     }
 
-    if (sift.payload.reservationFor) {
-      startTime = moment(sift.payload.reservationFor[0].departureTime).toISOString();
+    if (payload.reservationFor) {
+      startTime = moment(payload.reservationFor[0].departureTime).toISOString();
 
-      if (sift.payload.reservationFor.length > 1) {
-        if (sift.payload.reservationFor[0].departureTime) {
-          let departureTime = moment(sift.payload.reservationFor[0].departureTime).format('h:mm a');
+      if (payload.reservationFor.length > 1) {
+        if (payload.reservationFor[0].departureTime) {
+          let departureTime = moment(payload.reservationFor[0].departureTime).format('h:mm a');
           status = `Departs ${departureTime}`;
-          if (sift.payload.reservationFor[0].arrivalTime) {
-            let arrivalTime = moment(sift.payload.reservationFor[0].arrivalTime).format('h:mm a');
+          if (payload.reservationFor[0].arrivalTime) {
+            let arrivalTime = moment(payload.reservationFor[0].arrivalTime).format('h:mm a');
             status = `Departs ${departureTime} - Arrives ${arrivalTime}`;
           }
 
-          if (sift.payload.reservationFor[1].arrivalTime) {
-            depart = moment(sift.payload.reservationFor[0].departureTime).format('ddd, MMM D');
-            arrival = moment(sift.payload.reservationFor[1].arrivalTime).format('ddd, MMM D');
+          if (payload.reservationFor[1].arrivalTime) {
+            depart = moment(payload.reservationFor[0].departureTime).format('ddd, MMM D');
+            arrival = moment(payload.reservationFor[1].arrivalTime).format('ddd, MMM D');
             subTitle = `${depart} to ${arrival}`;
-          } else if (sift.payload.reservationFor[0].departureTime) {
-            depart = moment(sift.payload.reservationFor[0].departureTime).format('ddd, MMM D');
+          } else if (payload.reservationFor[0].departureTime) {
+            depart = moment(payload.reservationFor[0].departureTime).format('ddd, MMM D');
             subTitle = `Departing ${depart}`;
           }
         }
-      } else if (sift.payload.reservationFor.length === 1) {
-        if (sift.payload.reservationFor[0].departureTime) {
-          depart = moment(sift.payload.reservationFor[0].departureTime).format('ddd, MMM D');
+      } else if (payload.reservationFor.length === 1) {
+        if (payload.reservationFor[0].departureTime) {
+          depart = moment(payload.reservationFor[0].departureTime).format('ddd, MMM D');
           subTitle = depart;
 
-          let departureTime = moment(sift.payload.reservationFor[0].departureTime).format('h:mm a');
+          let departureTime = moment(payload.reservationFor[0].departureTime).format('h:mm a');
           status = `Departs ${departureTime}`;
-          if (sift.payload.reservationFor[0].arrivalTime) {
-            let arrivalTime = moment(sift.payload.reservationFor[0].arrivalTime).format('h:mm a');
+          if (payload.reservationFor[0].arrivalTime) {
+            let arrivalTime = moment(payload.reservationFor[0].arrivalTime).format('h:mm a');
             status = `Departs ${departureTime} - Arrives ${arrivalTime}`;
           }
         } else {
@@ -54,20 +55,20 @@ export const SiftFlightParser = async (sifts) => {
       }
 
       let arriveTime, departTime;
-      if (sift.payload.reservationFor[0]) {
+      if (payload.reservationFor[0]) {
         // get arrival time for card
-        if (sift.payload.reservationFor[0].arrivalTime) {
-          departTime = sift.payload.reservationFor[0].departureTime;
+        if (payload.reservationFor[0].arrivalTime) {
+          departTime = payload.reservationFor[0].departureTime;
         }
 
-        if (sift.payload.reservationFor[0].departureAirport) {
-          let DepartureAirport = sift.payload.reservationFor[0].departureAirport;
+        if (payload.reservationFor[0].departureAirport) {
+          let DepartureAirport = payload.reservationFor[0].departureAirport;
           if (DepartureAirport['x-cityName']) {
             title = 'Trip to ' + DepartureAirport['x-cityName'];
           }
         }
-        if (sift.payload.reservationFor[0].arrivalAirport) {
-          let ArrivalAirport = sift.payload.reservationFor[0].arrivalAirport;
+        if (payload.reservationFor[0].arrivalAirport) {
+          let ArrivalAirport = payload.reservationFor[0].arrivalAirport;
 
           if (ArrivalAirport['x-cityName']) {
             title = 'Trip to ' + ArrivalAirport['x-cityName'];
@@ -76,14 +77,14 @@ export const SiftFlightParser = async (sifts) => {
         }
 
         if (!startTime) {
-          startTime = moment.unix(emailTime).toISOString();
+          startTime = moment.unix(email_time).toISOString();
         }
 
         let departures = [];
 
         // Testing new parsing for flights
         let arrivalFound = false;
-        sift.payload.reservationFor.forEach((reservation, i) => {
+        payload.reservationFor.forEach((reservation, i) => {
           if (reservation.arrivalAirport) {
             let city;
             if (reservation.arrivalAirport['x-cityName']) {
@@ -130,15 +131,15 @@ export const SiftFlightParser = async (sifts) => {
           }
         });
 
-        if (sift.payload.reservationFor.length > 0) {
-          const last = sift.payload.reservationFor.length - 1;
-          if (sift.payload.reservationFor[0] && sift.payload.reservationFor[last]) {
-            if (sift.payload.reservationFor[last].arrivalTime) {
-              endTime = sift.payload.reservationFor[last].arrivalTime;
+        if (payload.reservationFor.length > 0) {
+          const last = payload.reservationFor.length - 1;
+          if (payload.reservationFor[0] && payload.reservationFor[last]) {
+            if (payload.reservationFor[last].arrivalTime) {
+              endTime = payload.reservationFor[last].arrivalTime;
             }
 
-            const departureTime = sift.payload.reservationFor[0].departureTime;
-            const arrivalTime = sift.payload.reservationFor[last].arrivalTime;
+            const departureTime = payload.reservationFor[0].departureTime;
+            const arrivalTime = payload.reservationFor[last].arrivalTime;
 
             if (departureTime && arrivalTime) {
               const leaving = moment(departureTime).format('ddd, MMM D');
@@ -160,10 +161,7 @@ export const SiftFlightParser = async (sifts) => {
           status = `Departs ${t1} - Arrives ${t2}`;
         }
 
-        console.log('AIRPORTS:');
-        console.log(airport);
         if (airport && airport.airport) {
-          console.log(airport.airport);
           let index = airport.airport.indexOf('-');
           if (index != -1) {
             city = airport.airport.slice(0, index);
@@ -172,26 +170,11 @@ export const SiftFlightParser = async (sifts) => {
           }
         }
 
-        // let airports = flights.map((flight) => flight.airport);
-        // let cities = airports.map((airport) => (airport ? airport.airport : null));
-        // let cleanedCities = cities.map((city) => {
-        //   if (city) {
-        //     let index = city.indexOf('-');
-        //     if (index != -1) {
-        //       return city.slice(0, index);
-        //     } else {
-        //       return city;
-        //     }
-        //   } else {
-        //     return null;
-        //   }
-        // });
-
         let displayData = {
           type: 'flight',
           startTime: moment.unix(startTime),
           endTime: moment.unix(endTime),
-          id: sift.sift_id,
+          id: sift_id,
           title: title,
           subtitle: subTitle,
           backupIcon: 'flight',
@@ -201,7 +184,7 @@ export const SiftFlightParser = async (sifts) => {
           cancelled: cancelled,
         };
 
-        let flightPayload = {
+        flights.push({
           type: 'flight',
           backupIcon: 'flight',
           sift: sift,
@@ -209,43 +192,43 @@ export const SiftFlightParser = async (sifts) => {
           status: status,
           destinationCity: destinationCity,
           subtitle: subTitle,
-          emailTime: emailTime,
+          emailTime: email_time,
           endTime: endTime,
           startTime: startTime,
-          vendor: sift.payload['x-vendorId'],
-          displayData: JSON.stringify(displayData),
+          vendor: payload['x-vendorId'],
+          displayData: displayData,
           departures: departures,
           airport: airport,
           city: city,
           imageQuery: city,
-        };
-
-        flights.push(flightPayload);
+          cancelled: cancelled,
+          uniqueId: createId(sift),
+        });
       }
     }
   }
 
-  createIds(flights);
   return flights;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    const pl = sift.sift.payload;
+const createId = (sift) => {
+  let uniqueId;
+  const { payload: pl } = sift;
 
-    if (pl.reservationId) {
-      sift.uniqueId = 'flightId:' + pl.reservationId;
-    } else if (pl.reservationFor) {
-      if (pl.reservationFor.departureTime && pl.reservationFor.flightNumber) {
-        sift.uniqueId = 'flightId:' + pl.reservationFor.departureTime + pl.reservationFor.flightNumber;
-      } else {
-        sift.uniqueId = 'flightId:' + String(sift.sift.sift_id);
-      }
+  if (pl.reservationId) {
+    uniqueId = 'flightId:' + pl.reservationId;
+  } else if (pl.reservationFor) {
+    if (pl.reservationFor.departureTime && pl.reservationFor.flightNumber) {
+      uniqueId = 'flightId:' + pl.reservationFor.departureTime + pl.reservationFor.flightNumber;
     } else {
-      sift.uniqueId = 'flightId:' + String(sift.sift.sift_id);
+      uniqueId = 'flightId:' + String(sift.sift_id);
     }
-
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  } else {
+    uniqueId = 'flightId:' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+
+  return uniqueId;
 };

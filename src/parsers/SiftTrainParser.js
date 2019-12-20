@@ -1,47 +1,46 @@
 import moment from 'moment';
 
 export const SiftTrainParser = async (sifts) => {
-  var trains = [];
+  let trains = [];
   for (let sift of sifts) {
-    var providerName;
-    var title;
-    var subTitle = '';
-    var emailTime = sift.email_time;
-    let startTime, depart, arrival, status, imageQuery;
+    const { payload, email_time, sift_id } = sift;
 
-    if (sift.payload.provider.name) {
-      providerName = sift.payload.provider.name;
+    let providerName, title, startTime, depart, arrival, status, imageQuery;
+    let subTitle = '';
+
+    if (payload.provider.name) {
+      providerName = payload.provider.name;
     }
 
-    if (sift.payload.reservationFor[0]) {
-      if (sift.payload.reservationFor[0].arrivalStation.name) {
-        imageQuery = sift.payload.reservationFor[0].arrivalStation.name;
-        title = 'Train to ' + sift.payload.reservationFor[0].arrivalStation.name;
+    if (payload.reservationFor[0]) {
+      if (payload.reservationFor[0].arrivalStation.name) {
+        imageQuery = payload.reservationFor[0].arrivalStation.name;
+        title = 'Train to ' + payload.reservationFor[0].arrivalStation.name;
       }
     }
 
-    startTime = moment(sift.payload.reservationFor[0].departureTime).toISOString();
+    startTime = moment(payload.reservationFor[0].departureTime).toISOString();
 
-    if (sift.payload.reservationFor.length > 1) {
-      if (sift.payload.reservationFor[0].departureTime) {
-        status = `Departs - ${moment(sift.payload.reservationFor[0].departureTime).format('h:mm a')}`;
+    if (payload.reservationFor.length > 1) {
+      if (payload.reservationFor[0].departureTime) {
+        status = `Departs - ${moment(payload.reservationFor[0].departureTime).format('h:mm a')}`;
       }
 
-      if (sift.payload.reservationFor[1].arrivalTime) {
-        depart = moment(sift.payload.reservationFor[0].departureTime).format('ddd, MMM DD');
-        arrival = moment(sift.payload.reservationFor[1].arrivalTime).format('ddd, MMM DD');
+      if (payload.reservationFor[1].arrivalTime) {
+        depart = moment(payload.reservationFor[0].departureTime).format('ddd, MMM DD');
+        arrival = moment(payload.reservationFor[1].arrivalTime).format('ddd, MMM DD');
         subTitle = `${depart} - ${arrival}`;
-      } else if (sift.payload.reservationFor[0].departureTime) {
-        depart = moment(sift.payload.reservationFor[0].departureTime).format('dddd, MMM DD');
+      } else if (payload.reservationFor[0].departureTime) {
+        depart = moment(payload.reservationFor[0].departureTime).format('dddd, MMM DD');
         subTitle = depart;
       }
-    } else if (sift.payload.reservationFor.length === 1) {
-      if (sift.payload.reservationFor[0].departureTime) {
-        status = `Departs - ${moment(sift.payload.reservationFor[0].departureTime).format('h:mm a')}`;
+    } else if (payload.reservationFor.length === 1) {
+      if (payload.reservationFor[0].departureTime) {
+        status = `Departs - ${moment(payload.reservationFor[0].departureTime).format('h:mm a')}`;
       }
 
-      if (sift.payload.reservationFor[0].departureTime) {
-        depart = moment(sift.payload.reservationFor[0].departureTime).format('dddd, MMM DD');
+      if (payload.reservationFor[0].departureTime) {
+        depart = moment(payload.reservationFor[0].departureTime).format('dddd, MMM DD');
         subTitle = depart;
       } else {
         subTitle = 'Upcoming Trip';
@@ -50,7 +49,7 @@ export const SiftTrainParser = async (sifts) => {
 
     let displayData = {
       type: 'train',
-      id: sift.sift_id,
+      id: sift_id,
       title: title,
       subtitle: subTitle,
       backupIcon: 'train',
@@ -59,7 +58,7 @@ export const SiftTrainParser = async (sifts) => {
       times: status,
     };
 
-    let rentalPayload = {
+    trains.push({
       type: 'train',
       backupIcon: 'train',
       startTime: startTime,
@@ -67,31 +66,30 @@ export const SiftTrainParser = async (sifts) => {
       title: title,
       status: status,
       subtitle: subTitle,
-      emailTime: emailTime,
+      emailTime: email_time,
       provider: providerName,
-      vendor: sift.payload['x-vendorId'],
+      dates: subTitle,
+      vendor: payload['x-vendorId'],
       imageQuery: imageQuery,
-      displayData: JSON.stringify(displayData),
-    };
-
-    trains.push(rentalPayload);
+      displayData: displayData,
+      uniqueId: createId(sift),
+    });
   }
 
-  createIds(trains);
   return trains;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    const pl = sift.sift.payload;
+const createId = (sift) => {
+  let uniqueId;
+  const { payload: pl } = sift;
 
-    if (pl.reservationId) {
-      sift.uniqueId = 'trainId:' + pl.reservationId;
-    } else {
-      sift.uniqueId = 'trainId:' + String(sift.sift.sift_id);
-    }
-
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  if (pl.reservationId) {
+    uniqueId = 'trainId:' + pl.reservationId;
+  } else {
+    uniqueId = 'trainId:' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+  return uniqueId;
 };

@@ -3,63 +3,66 @@ import moment from 'moment';
 export const SiftBillParser = async (sifts) => {
   let bills = [];
   for (let sift of sifts) {
-    const pl = sift.payload;
+    const { payload, email_time, sift_id } = sift;
 
     let title, date, price, paymentUrl, emailSubject, startTime;
     let subTitle = '';
-    let emailTime = sift.email_time;
 
-    if (pl.description) {
-      title = pl.description;
+    if (payload.description) {
+      title = payload.description;
     } else {
       title = 'Upcoming Bill';
     }
 
-    if (pl['x-emailSubject']) {
-      emailSubject = pl['x-emailSubject'];
+    if (payload['x-emailSubject']) {
+      emailSubject = payload['x-emailSubject'];
     }
 
-    if (pl.url) {
-      paymentUrl = pl.url;
+    if (payload.url) {
+      paymentUrl = payload.url;
     }
 
-    if (pl.totalPaymentDue) {
-      if (pl.totalPaymentDue.price) {
+    if (payload.totalPaymentDue) {
+      if (payload.totalPaymentDue.price) {
         // Add $ symbol
-        if (pl.totalPaymentDue.price[0] !== '$') {
-          pl.totalPaymentDue.price = `$${pl.totalPaymentDue.price}`;
-          price = pl.totalPaymentDue.price;
+        if (payload.totalPaymentDue.price[0] !== '$') {
+          payload.totalPaymentDue.price = `$${payload.totalPaymentDue.price}`;
+          price = payload.totalPaymentDue.price;
         } else {
-          price = pl.totalPaymentDue.price;
+          price = payload.totalPaymentDue.price;
         }
 
         // removing zeroes
-        if (pl.totalPaymentDue.price[0].slice(pl.totalPaymentDue.price[0] - 3, pl.totalPaymentDue.price[0]) === '.00') {
-          pl.totalPaymentDue.price[0] = pl.totalPaymentDue.price[0].slice(0, pl.totalPaymentDue.price[0] - 3);
+        if (
+          payload.totalPaymentDue.price[0].slice(
+            payload.totalPaymentDue.price[0] - 3,
+            payload.totalPaymentDue.price[0]
+          ) === '.00'
+        ) {
+          payload.totalPaymentDue.price[0] = payload.totalPaymentDue.price[0].slice(
+            0,
+            payload.totalPaymentDue.price[0] - 3
+          );
         }
 
-        subTitle = pl.totalPaymentDue.price;
+        subTitle = payload.totalPaymentDue.price;
       }
-    } else if (pl.paymentDueDate) {
-      const dueDate = moment(pl.paymentDueDate).format('MMM D');
+    } else if (payload.paymentDueDate) {
+      const dueDate = moment(payload.paymentDueDate).format('MMM D');
       subTitle = `Due on ${dueDate}`;
     }
 
-    if (pl.paymentDueDate) {
-      startTime = pl.paymentDueDate;
-      date = pl.paymentDueDate;
+    if (payload.paymentDueDate) {
+      startTime = payload.paymentDueDate;
+      date = payload.paymentDueDate;
     } else {
-      date = emailTime;
+      date = email_time;
     }
-
-    // if (!startTime) {
-    //   startTime = moment.unix(emailTime).toISOString();
-    // }
 
     let displayData = {
       type: 'bill',
-      startTime: moment.unix(emailTime),
-      id: sift.sift_id,
+      startTime: moment.unix(email_time),
+      id: sift_id,
       title: title,
       subtitle: subTitle,
       date: date,
@@ -69,37 +72,38 @@ export const SiftBillParser = async (sifts) => {
       paymentUrl: paymentUrl,
     };
 
-    let payload = {
+    bills.push({
       type: 'bill',
       backupIcon: 'finance',
       sift: sift,
       title: title,
       subtitle: subTitle,
-      emailTime: emailTime,
+      emailTime: email_time,
       startTime: startTime,
-      vendor: pl['x-vendorId'],
-      displayData: JSON.stringify(displayData),
-    };
-
-    bills.push(payload);
+      price: price,
+      emailSubject: emailSubject,
+      paymentUrl: paymentUrl,
+      date: date,
+      vendor: payload['x-vendorId'],
+      displayData: displayData,
+      uniqueId: createId(sift),
+    });
   }
-
-  createIds(bills);
 
   return bills;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    const pl = sift.sift.payload;
+const createId = (sift) => {
+  let uniqueId;
 
-    if (pl.totalPaymentDue.price && pl.paymentDueDate) {
-      sift.uniqueId = pl.totalPaymentDue.price + pl.paymentDueDate;
-    } else {
-      sift.uniqueId = String(sift.sift.sift_id);
-    }
-
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  if (sift.payload.totalPaymentDue.price && sift.payload.paymentDueDate) {
+    uniqueId = sift.payload.totalPaymentDue.price + sift.payload.paymentDueDate;
+  } else {
+    uniqueId = String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+
+  return uniqueId;
 };

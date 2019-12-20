@@ -9,7 +9,7 @@ import { SiftRestaurantParser } from './parsers/SiftRestaurantParser';
 import { SiftEventParser } from './parsers/SiftEventParser';
 import { SiftBillParser } from './parsers/SiftBillParser';
 import { SiftBoardingPassParser } from './parsers/SiftBoardingPassParser';
-import { GetSiftVendors, getTravelImages } from './parsers/SiftBoardingPassParser';
+import { GetSiftVendors, getTravelImages } from './apis/apis';
 
 module.exports = {
   SiftFlightParser,

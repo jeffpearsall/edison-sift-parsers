@@ -3,48 +3,49 @@ import moment from 'moment';
 export const SiftRestaurantParser = async (sifts) => {
   let reservations = [];
   for (let sift of sifts) {
+    const { payload, email_time, sift_id } = sift;
+
     let vendor, date, time, ticket, reservation, startTime;
     let providerName, restaurantName, title;
     let subTitle = '';
-    let emailTime = sift.email_time;
-    let displayTime = sift.payload.startTime;
+    let displayTime = payload.startTime;
 
-    if (sift.payload) {
-      if (sift.payload.provider) {
-        if (sift.payload.provider.name) {
-          vendor = sift.payload.provider.name;
+    if (payload) {
+      if (payload.provider) {
+        if (payload.provider.name) {
+          vendor = payload.provider.name;
         }
       }
 
-      if (sift.payload.reservedTicket) {
-        if (sift.payload.reservedTicket[0]) {
-          if (sift.payload.reservedTicket[0].url) {
-            ticket = sift.payload.reservedTicket[0].url;
+      if (payload.reservedTicket) {
+        if (payload.reservedTicket[0]) {
+          if (payload.reservedTicket[0].url) {
+            ticket = payload.reservedTicket[0].url;
           }
         }
       }
 
-      if (sift.payload.startTime) {
-        startTime = sift.payload.startTime;
-        date = moment(sift.payload.startTime).format('dddd, MMM D');
-        time = moment(sift.payload.startTime).format('h:mm a');
-        startTime = sift.payload.startTime;
-        reservation = moment(sift.payload.startTime);
-      } else if (sift.payload.reservationFor.startDate) {
-        startTime = sift.payload.reservationFor.startDate;
-        date = moment(sift.payload.reservationFor.startDate).format('dddd, MMM D');
-        time = moment(sift.payload.reservationFor.startDate).format('h:mm a');
-        startTime = sift.payload.reservationFor.startDate;
+      if (payload.startTime) {
+        startTime = payload.startTime;
+        date = moment(payload.startTime).format('dddd, MMM D');
+        time = moment(payload.startTime).format('h:mm a');
+        startTime = payload.startTime;
+        reservation = moment(payload.startTime);
+      } else if (payload.reservationFor.startDate) {
+        startTime = payload.reservationFor.startDate;
+        date = moment(payload.reservationFor.startDate).format('dddd, MMM D');
+        time = moment(payload.reservationFor.startDate).format('h:mm a');
+        startTime = payload.reservationFor.startDate;
       }
 
-      if (sift.payload.provider) {
-        if (sift.payload.provider.name) {
-          providerName = sift.payload.provider.name;
+      if (payload.provider) {
+        if (payload.provider.name) {
+          providerName = payload.provider.name;
         }
       }
 
-      if (sift.payload.reservationFor) {
-        restaurantName = sift.payload.reservationFor.name;
+      if (payload.reservationFor) {
+        restaurantName = payload.reservationFor.name;
       }
     }
 
@@ -70,8 +71,8 @@ export const SiftRestaurantParser = async (sifts) => {
 
     let displayData = {
       type: 'restaurant',
-      startTime: moment.unix(emailTime),
-      id: sift.sift_id,
+      startTime: moment.unix(email_time),
+      id: sift_id,
       title: title,
       subtitle: subTitle,
       backupIcon: 'categoryRestaurant',
@@ -82,35 +83,40 @@ export const SiftRestaurantParser = async (sifts) => {
       reservation: reservation,
     };
 
-    let reservationPayload = {
+    reservations.push({
       type: 'restaurant',
       backupIcon: 'categoryRestaurant',
       sift: sift,
       title: title,
       subtitle: subTitle,
-      emailTime: emailTime,
+      emailTime: email_time,
       startTime: startTime,
-      vendor: sift.payload['x-vendorId'],
-      displayData: JSON.stringify(displayData),
-    };
-    reservations.push(reservationPayload);
+      date: date,
+      time: time,
+      ticket: ticket,
+      reservation: reservation,
+      vendor: payload['x-vendorId'],
+      displayData: displayData,
+      uniqueId: createId(sift),
+    });
   }
 
-  createIds(reservations);
   return reservations;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    const pl = sift.sift.payload;
+const createId = (sift) => {
+  let uniqueId;
 
-    if (pl.reservationId) {
-      sift.uniqueId = 'restaurantId:' + pl.reservationId;
-    } else {
-      sift.uniqueId = 'restaurantId:' + String(sift.sift.sift_id);
-    }
+  const { payload: pl } = sift;
 
-    sift.uniqueId = sift.uniqueId.replace("'", '');
-    sift.uniqueId = sift.uniqueId.toUpperCase();
+  if (pl.reservationId) {
+    uniqueId = 'restaurantId:' + pl.reservationId;
+  } else {
+    uniqueId = 'restaurantId:' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.replace("'", '');
+  uniqueId = uniqueId.toUpperCase();
+
+  return uniqueId;
 };

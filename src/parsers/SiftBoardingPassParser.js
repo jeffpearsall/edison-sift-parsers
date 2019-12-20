@@ -2,12 +2,15 @@ import moment from 'moment';
 
 export const SiftBoardingPassParser = async (sifts) => {
   let boardingpasses = [];
+
   for (let sift of sifts) {
-    let { reservationFor: rf, reservedTicket: rt, reservationId } = sift.payload;
+    const { payload, email_time, sift_id } = sift;
+    const { reservationFor: rf, reservedTicket: rt, reservationId } = payload;
+
     let startTime, endTime;
     let tickets = [];
     let reservations = [];
-    let emailTime = sift.email_time;
+
     let subTitle = '';
     let title = 'Boarding Pass';
 
@@ -83,7 +86,7 @@ export const SiftBoardingPassParser = async (sifts) => {
       type: 'boardingpass',
       startTime: startTime ? moment.unix(startTime) : null,
       endTime: endTime ? moment.unix(endTime) : null,
-      id: sift.sift_id,
+      id: sift_id,
       title: title,
       subtitle: subTitle,
       backupIcon: 'flight',
@@ -91,33 +94,33 @@ export const SiftBoardingPassParser = async (sifts) => {
       reservationId: reservationId,
     };
 
-    let payload = {
+    boardingpasses.push({
       type: 'boardingpass',
       backupIcon: 'flight',
       sift: sift,
       title: title,
       subtitle: subTitle,
-      emailTime: emailTime,
+      emailTime: email_time,
       startTime: startTime,
       endTime: endTime,
-      displayData: JSON.stringify(displayData),
-    };
-    boardingpasses.push(payload);
+      displayData: displayData,
+      uniqueId: createId(sift),
+    });
   }
-
-  createIds(boardingpasses);
   return boardingpasses;
 };
 
-const createIds = (sifts) => {
-  for (let sift of sifts) {
-    if (sift.sift.payload.reservationId) {
-      sift.uniqueId = 'boardingpassId:' + sift.sift.payload.reservationId;
-    } else {
-      sift.uniqueId = 'boardingpassId' + String(sift.sift.sift_id);
-    }
+const createId = (sift) => {
+  let uniqueId;
 
-    sift.uniqueId = sift.uniqueId.toUpperCase();
-    sift.uniqueId = sift.uniqueId.replace("'", '');
+  if (sift.payload.reservationId) {
+    uniqueId = 'boardingpassId:' + sift.payload.reservationId;
+  } else {
+    uniqueId = 'boardingpassId' + String(sift.sift_id);
   }
+
+  uniqueId = uniqueId.toUpperCase();
+  uniqueId = uniqueId.replace("'", '');
+
+  return uniqueId;
 };
