@@ -1,5 +1,6 @@
 import { getCityPhoto } from './teleportApi';
 import { getWikipediaImage } from './wikipediaImageApi';
+import AirportMapping from '../data/AirportMapping.json';
 
 const EdisonEnvironmentUrls = {
   development: 'https://mail-engineering.easilydo.com',
@@ -7,7 +8,7 @@ const EdisonEnvironmentUrls = {
   production: 'https://mail.easilydo.com',
 };
 
-export const GetSiftVendors = async (sifts, config) => {
+export const getSiftVendors = async (sifts, config) => {
   if (sifts.length === 0) {
     return [];
   }
@@ -139,3 +140,5 @@ const getImages = async (cities, API) => {
   let photos = cities.map((city) => destinationDict[city]);
   return photos;
 };
+
+export const getAirportMapping = () => AirportMapping;
