@@ -141,7 +141,4 @@ const getImages = async (cities, API) => {
   return photos;
 };
 
-export const getAirportMapping = () => {
-  console.log('getting airport mapping');
-  return AirportMapping;
-};
+export const getAirportMapping = () => AirportMapping;
