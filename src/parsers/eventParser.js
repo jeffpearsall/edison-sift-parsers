@@ -88,7 +88,7 @@ export const eventParser = (sift) => {
     time: time,
     date: date,
     reservation: reservation,
-    displayData: JSON.stringify(displayData),
+    displayData: displayData,
     uniqueId: createId(sift),
   };
 };
