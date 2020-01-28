@@ -93,7 +93,6 @@ export const boardingPassParser = (sift) => {
 
   return {
     type: 'boardingpass',
-    backupIcon: 'flight',
     sift: sift,
     title: title,
     subtitle: subTitle,

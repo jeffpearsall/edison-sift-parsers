@@ -16,6 +16,10 @@ export const getSiftVendors = async (sifts, config) => {
   // get config data
   let { user, token, env } = config;
 
+  if (!user || !token || !env) {
+    console.warn('missing information in vendor configuration payload');
+  }
+
   let vendors = sifts.map((sift) => {
     if (sift.sift.payload) {
       if (sift.sift.payload['x-vendorId']) {
@@ -66,6 +70,28 @@ export const getSiftVendors = async (sifts, config) => {
   });
 
   return allVendors;
+};
+
+export const getSiftVendor = (sift, config) => {
+  // get config data
+  let { user, token, env } = config;
+
+  if (!user || !token || !env) {
+    console.warn('missing information in vendor configuration payload');
+  }
+
+  let id;
+  if (sift.sift.payload) {
+    if (sift.sift.payload['x-vendorId']) {
+      id = sift.sift.payload['x-vendorId'];
+    }
+  }
+
+  if (id) {
+    return GetVendorInfo({ id, user, token, env });
+  } else {
+    console.warn('missing vendor id');
+  }
 };
 
 const GetVendorInfo = async ({ id, user, token, env }) => {

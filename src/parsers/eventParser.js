@@ -76,7 +76,6 @@ export const eventParser = (sift) => {
 
   return {
     type: 'event',
-    backupIcon: 'entertainment',
     sift: sift,
     title: title,
     subtitle: subTitle,

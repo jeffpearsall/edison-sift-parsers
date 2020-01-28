@@ -3,7 +3,7 @@ import moment from 'moment';
 export const trainParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
-  let providerName, title, startTime, depart, arrival, status, imageQuery;
+  let providerName, title, startTime, depart, arrival, status, city;
   let subTitle = '';
 
   if (payload.provider.name) {
@@ -12,7 +12,7 @@ export const trainParser = (sift) => {
 
   if (payload.reservationFor[0]) {
     if (payload.reservationFor[0].arrivalStation.name) {
-      imageQuery = payload.reservationFor[0].arrivalStation.name;
+      city = payload.reservationFor[0].arrivalStation.name;
       title = 'Train to ' + payload.reservationFor[0].arrivalStation.name;
     }
   }
@@ -58,7 +58,6 @@ export const trainParser = (sift) => {
 
   return {
     type: 'train',
-    backupIcon: 'train',
     startTime: startTime,
     sift: sift,
     title: title,
@@ -68,7 +67,7 @@ export const trainParser = (sift) => {
     provider: providerName,
     dates: subTitle,
     vendor: payload['x-vendorId'],
-    imageQuery: imageQuery,
+    city: city,
     displayData: displayData,
     uniqueId: createId(sift),
   };

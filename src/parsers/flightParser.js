@@ -184,7 +184,6 @@ export const flightParser = (sift) => {
 
       return {
         type: 'flight',
-        backupIcon: 'flight',
         sift: sift,
         title: title,
         status: status,
@@ -198,7 +197,6 @@ export const flightParser = (sift) => {
         departures: departures,
         airport: airport,
         city: city,
-        imageQuery: city,
         cancelled: cancelled,
         uniqueId: createId(sift),
       };

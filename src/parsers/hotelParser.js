@@ -4,7 +4,7 @@ import parser from 'parse-address';
 export const hotelParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
-  let title, startTime, endTime, status, imageQuery;
+  let title, startTime, endTime, status, city;
   let subTitle = '';
 
   if (payload.checkinTime) {
@@ -34,10 +34,10 @@ export const hotelParser = (sift) => {
     if (payload.reservationFor.address) {
       let humanAddress = parser.parseLocation(payload.reservationFor.address);
       if (humanAddress && humanAddress.city && humanAddress.state) {
-        imageQuery = `${humanAddress.city},${humanAddress.state}`;
+        city = `${humanAddress.city},${humanAddress.state}`;
       }
     } else if (payload.reservationFor.name) {
-      imageQuery = payload.reservationFor.name;
+      city = payload.reservationFor.name;
     }
   }
 
@@ -56,7 +56,6 @@ export const hotelParser = (sift) => {
 
   return {
     type: 'hotel',
-    backupIcon: 'lodging',
     sift: sift,
     title: title,
     subtitle: subTitle,
@@ -68,7 +67,7 @@ export const hotelParser = (sift) => {
     destination: title,
     vendor: payload['x-vendorId'],
     displayData: displayData,
-    imageQuery: imageQuery,
+    city: city,
     uniqueId: createId(sift),
   };
 };

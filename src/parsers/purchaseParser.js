@@ -94,7 +94,6 @@ export const purchaseParser = (sift) => {
 
   return {
     type: 'purchase',
-    backupIcon: 'packages',
     sift: sift,
     title: title,
     subtitle: subTitle,

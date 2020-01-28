@@ -5,7 +5,7 @@ export const rentalParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
   let startTime = moment.unix(email_time);
-  let carName, title, subTitle, pickupTime, dropoffTime, status, endTime, imageQuery;
+  let carName, title, subTitle, pickupTime, dropoffTime, status, endTime, city;
 
   if (payload.reservationFor) {
     if (payload.reservationFor.name) {
@@ -20,7 +20,7 @@ export const rentalParser = (sift) => {
   if (payload.dropoffLocation.address) {
     let humanAddress = parser.parseLocation(payload.dropoffLocation.address);
     if (humanAddress.city && humanAddress.state) {
-      imageQuery = `${humanAddress.city},${humanAddress.state}`;
+      city = `${humanAddress.city},${humanAddress.state}`;
     }
   }
 
@@ -53,7 +53,6 @@ export const rentalParser = (sift) => {
 
   return {
     type: 'rental',
-    backupIcon: 'carrental',
     sift: sift,
     startTime: startTime,
     title: title,
@@ -65,7 +64,7 @@ export const rentalParser = (sift) => {
     pickupTime: pickupTime,
     dropoffTime: dropoffTime,
     displayData: displayData,
-    imageQuery: imageQuery,
+    city: city,
     name: carName,
     uniqueId: createId(sift),
   };

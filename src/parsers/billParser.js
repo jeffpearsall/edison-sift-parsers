@@ -72,7 +72,6 @@ export const billParser = (sift) => {
 
   return {
     type: 'bill',
-    backupIcon: 'finance',
     sift: sift,
     title: title,
     subtitle: subTitle,

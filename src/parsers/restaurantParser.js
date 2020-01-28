@@ -83,7 +83,6 @@ export const restaurantParser = (sift) => {
 
   return {
     type: 'restaurant',
-    backupIcon: 'categoryRestaurant',
     sift: sift,
     title: title,
     subtitle: subTitle,

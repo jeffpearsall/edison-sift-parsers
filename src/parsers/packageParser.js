@@ -120,7 +120,6 @@ export const packageParser = (sift) => {
 
   const displayData = {
     type: 'shipment',
-    backupIcon: 'packages',
     id: sift_id,
     title: title,
     subtitle: subTitle,

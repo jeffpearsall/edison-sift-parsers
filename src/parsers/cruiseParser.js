@@ -62,7 +62,6 @@ export const cruiseParser = (sift) => {
 
   return {
     type: 'cruise',
-    backupIcon: 'categoryCruise',
     sift: sift,
     title: title,
     subtitle: subTitle,
