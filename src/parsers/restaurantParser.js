@@ -92,7 +92,7 @@ export const restaurantParser = (sift) => {
     date: date,
     time: time,
     ticket: ticket,
-    reservation: reservation,
+    restaurantName: restaurantName,
     vendor: payload['x-vendorId'],
     displayData: displayData,
     uniqueId: createId(sift),

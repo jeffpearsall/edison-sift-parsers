@@ -54,9 +54,8 @@ export const rentalParser = (sift) => {
   return {
     type: 'rental',
     backupIcon: 'carrental',
-    unique: true,
-    startTime: startTime,
     sift: sift,
+    startTime: startTime,
     title: title,
     status: status,
     subtitle: subTitle,

@@ -81,14 +81,12 @@ export const eventParser = (sift) => {
     title: title,
     subtitle: subTitle,
     emailTime: email_time,
-    vendor: sift.payload['x-vendorId'],
     startTime: startTime,
     ticketUrl: ticketUrl,
-    ticket: ticket,
     time: time,
     date: date,
-    reservation: reservation,
     displayData: displayData,
+    vendor: sift.payload['x-vendorId'],
     uniqueId: createId(sift),
   };
 };

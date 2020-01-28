@@ -24,8 +24,8 @@ module.exports = {
   eventParser,
   billParser,
   boardingPassParser,
+  getMergedPayloads,
   getSiftVendors,
   getTravelImages,
-  getMergedPayloads,
   getAirportMapping,
 };

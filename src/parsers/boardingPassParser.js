@@ -100,6 +100,8 @@ export const boardingPassParser = (sift) => {
     emailTime: email_time,
     startTime: startTime,
     endTime: endTime,
+    reservations: reservations,
+    reservationId: reservationId,
     displayData: displayData,
     uniqueId: createId(sift),
   };

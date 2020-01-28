@@ -120,10 +120,10 @@ export const packageParser = (sift) => {
 
   const displayData = {
     type: 'shipment',
+    backupIcon: 'packages',
     id: sift_id,
     title: title,
     subtitle: subTitle,
-    backupIcon: 'packages',
     status: status,
     shipDate: shipDate,
     featuredImage: productImage,
@@ -147,12 +147,12 @@ export const packageParser = (sift) => {
     trackingNumber: trackingNumber,
     primaryImage: productImage,
     displayData: displayData,
-    vendor: payload['x-vendorId'],
     images: images,
     trackingUrl: trackingUrl,
     shipDate: shipDate,
     featuredImage: productImage,
     shipperName: shipperName,
+    vendor: payload['x-vendorId'],
     uniqueId: createId(sift),
   };
 };
