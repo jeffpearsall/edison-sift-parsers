@@ -2,6 +2,19 @@
 
 A javascript library that takes the Edison Sift API results and returns the optimal fields (title, subtitle, etc) for presentation. Also includes a simplified API for fetching vendors and travel images.
 
+## Getting Started
+
+Add the package with: `yarn add https://github.com/decrews/edison-sift-parsers.git`
+
+Example:
+
+```javascript
+import { flightParser, getSiftVendor } from 'edison-sift-parsers';
+
+const parsedFlight = flightParser(sift);
+const flightVendor = await getSiftVendor(parsedFlight);
+```
+
 ## Sift Domain Parsers
 
 Sift parsers take the original response and return a payload for display purposes.
@@ -14,7 +27,6 @@ Sift parsers take the original response and return a payload for display purpose
 | Property     | Type   | Description                                               |
 | ------------ | ------ | --------------------------------------------------------- |
 | `type`       | string | 'flight'                                                  |
-| `backupIcon` | string | 'flight'                                                  |
 | `sift`       | object | The original sift payload                                 |
 | `title`      | string | Title for the card                                        |
 | `status`     | string | Flight status                                             |
@@ -47,7 +59,6 @@ Sift parsers take the original response and return a payload for display purpose
 | Property      | Type   | Description                                           |
 | ------------- | ------ | ----------------------------------------------------- |
 | `type`        | string | 'hotel'                                               |
-| `backupIcon`  | string | 'lodging'                                             |
 | `sift`        | object | The original sift payload                             |
 | `title`       | string | Title for the card                                    |
 | `subtitle`    | string | Subtitle for the card                                 |
@@ -70,7 +81,6 @@ Sift parsers take the original response and return a payload for display purpose
 | Property      | Type   | Description                                     |
 | ------------- | ------ | ----------------------------------------------- |
 | `type`        | string | 'rental'                                        |
-| `backupIcon`  | string | 'carrental'                                     |
 | `sift`        | object | The original sift payload                       |
 | `startTime`   | string | DateTime string for when the reservation begins |
 | `title`       | string | Title for the card                              |
@@ -92,21 +102,20 @@ Sift parsers take the original response and return a payload for display purpose
 <details>
 <summary>properties</summary>
 
-| Property     | Type   | Description                                     |
-| ------------ | ------ | ----------------------------------------------- |
-| `type`       | string | 'train'                                         |
-| `backupIcon` | string | 'train'                                         |
-| `sift`       | object | The original sift payload                       |
-| `startTime`  | string | DateTime string for when the reservation begins |
-| `title`      | string | Title for the card                              |
-| `status`     | string | Rental status                                   |
-| `subtitle`   | string | Subtitle for the card                           |
-| `provider`   | string | The provider                                    |
-| `emailTime`  | number | Unix time for the associated email              |
-| `dates`      | string | The dates for the reservation                   |
-| `city`       | string | The destination city                            |
-| `vendor`     | string | The vendor's ID to use with the Vendor API      |
-| `uniqueId`   | string | ID used to removing duplicate sifts             |
+| Property    | Type   | Description                                     |
+| ----------- | ------ | ----------------------------------------------- |
+| `type`      | string | 'train'                                         |
+| `sift`      | object | The original sift payload                       |
+| `startTime` | string | DateTime string for when the reservation begins |
+| `title`     | string | Title for the card                              |
+| `status`    | string | Rental status                                   |
+| `subtitle`  | string | Subtitle for the card                           |
+| `provider`  | string | The provider                                    |
+| `emailTime` | number | Unix time for the associated email              |
+| `dates`     | string | The dates for the reservation                   |
+| `city`      | string | The destination city                            |
+| `vendor`    | string | The vendor's ID to use with the Vendor API      |
+| `uniqueId`  | string | ID used to removing duplicate sifts             |
 
 </details>
 
