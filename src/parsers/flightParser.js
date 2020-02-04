@@ -1,10 +1,12 @@
 import AirportMapping from '../data/AirportMapping.json';
+import AirlineCheckinMapping from '../data/AirlineCheckinMapping.json';
 import moment from 'moment';
 
 export const flightParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
   let title, status, destinationCity, startTime, endTime, depart, arrival, airport, city;
+  let travelers, reservationNumber, broker;
   let subTitle = '';
   let cancelled = false;
 
@@ -83,12 +85,16 @@ export const flightParser = (sift) => {
       // Testing new parsing for flights
       let arrivalFound = false;
       payload.reservationFor.forEach((reservation, i) => {
+        const arrivalCity = arrivalCity;
+        const arrivalRaw = reservation.arrivalAirport['x-rawName'];
+        const arrivalIata = reservation.arrivalAirport.iataCode;
+
         if (reservation.arrivalAirport) {
           let city;
-          if (reservation.arrivalAirport['x-cityName']) {
-            city = reservation.arrivalAirport['x-cityName'];
-          } else if (reservation.arrivalAirport['x-rawName']) {
-            city = reservation.arrivalAirport['x-cityName'];
+          if (arrivalCity) {
+            city = arrivalCity;
+          } else if (arrivalRaw) {
+            city = arrivalCity;
           }
 
           if (reservation.arrivalAirport['x-destination'] == 'true') {
@@ -102,26 +108,25 @@ export const flightParser = (sift) => {
 
             if (!arrivalFound) {
               arrivalFound = true;
+
               if (reservation.arrivalTime) {
                 arriveTime = reservation.arrivalTime;
               }
               arrival = moment(reservation.arrivalTime).format('ddd, MMM D');
               if (reservation.arrivalAirport['x-cityName']) {
-                title = `Trip to ${reservation.arrivalAirport['x-cityName']}`;
-                destinationCity = reservation.arrivalAirport['x-cityName'];
-              } else if (reservation.arrivalAirport['x-rawName']) {
-                title = `Trip to ${reservation.arrivalAirport['x-rawName']}`;
-                destinationCity = reservation.arrivalAirport['x-cityName'];
+                title = `Trip to ${arrivalCity}`;
+              } else if (arrivalRaw) {
+                title = `Trip to ${arrivalRaw}`;
               }
-              if (reservation.arrivalAirport.iataCode) {
-                airport = AirportMapping[reservation.arrivalAirport.iataCode];
+              if (arrivalIata) {
+                airport = AirportMapping[arrivalIata];
               }
             }
           } else {
             departures.push({
               departureTime: reservation.departureTime,
               arrivalTime: reservation.arrivalTime,
-              airport: reservation.arrivalAirport.iataCode,
+              airport: arrivalIata,
               city,
               destination: false,
             });
@@ -168,6 +173,22 @@ export const flightParser = (sift) => {
         }
       }
 
+      if (payload.reservedTicket) {
+        travelers = [...new Set(payload.reservedTicket.map((ticket) => ticket.underName.name))]; // make a unique array
+      }
+
+      if (payload.reservationId) {
+        reservationNumber = payload.reservationId;
+      }
+
+      if (payload.broker) {
+        if (payload.broker.name) {
+          broker = payload.broker.name;
+        }
+      }
+
+      const checkinData = getCheckinData(payload['x-vendorId']);
+
       let displayData = {
         type: 'flight',
         startTime: moment.unix(startTime),
@@ -188,6 +209,8 @@ export const flightParser = (sift) => {
         title: title,
         status: status,
         destinationCity: destinationCity,
+        travelers: travelers,
+        reservationNumber: reservationNumber,
         subtitle: subTitle,
         emailTime: email_time,
         endTime: endTime,
@@ -195,12 +218,22 @@ export const flightParser = (sift) => {
         vendor: payload['x-vendorId'],
         displayData: displayData,
         departures: departures,
+        checkinData: checkinData,
         airport: airport,
+        broker: broker,
         city: city,
         cancelled: cancelled,
         uniqueId: createId(sift),
       };
     }
+  }
+};
+
+const getCheckinData = (vendorId) => {
+  if (!vendorId || !AirlineCheckinMapping[vendorId]) {
+    return null;
+  } else {
+    return AirlineCheckinMapping[vendorId];
   }
 };
 

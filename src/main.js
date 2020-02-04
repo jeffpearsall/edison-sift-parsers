@@ -9,7 +9,14 @@ import { restaurantParser } from './parsers/restaurantParser';
 import { eventParser } from './parsers/eventParser';
 import { billParser } from './parsers/billParser';
 import { boardingPassParser } from './parsers/boardingPassParser';
-import { getSiftVendors, getSiftVendor, getTravelImages, getAirportMapping } from './apis/apis';
+import {
+  getSiftVendors,
+  getSiftVendor,
+  getTravelImages,
+  getAirportMapping,
+  getAirlineCheckinMapping,
+  getTravelImage,
+} from './apis/apis';
 import { getMergedPayloads } from './parsers/payloadMerger';
 
 module.exports = {
@@ -28,5 +35,7 @@ module.exports = {
   getSiftVendors,
   getSiftVendor,
   getTravelImages,
+  getTravelImage,
   getAirportMapping,
+  getAirlineCheckinMapping,
 };

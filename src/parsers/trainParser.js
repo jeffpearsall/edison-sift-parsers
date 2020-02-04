@@ -4,6 +4,7 @@ export const trainParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
   let providerName, title, startTime, depart, arrival, status, city;
+  let travelers, reservationNumber, trainNumber;
   let subTitle = '';
 
   if (payload.provider.name) {
@@ -11,6 +12,7 @@ export const trainParser = (sift) => {
   }
 
   if (payload.reservationFor[0]) {
+    trainNumber = payload.reservationFor[0].trainNumber;
     if (payload.reservationFor[0].arrivalStation.name) {
       city = payload.reservationFor[0].arrivalStation.name;
       title = 'Train to ' + payload.reservationFor[0].arrivalStation.name;
@@ -45,6 +47,15 @@ export const trainParser = (sift) => {
     }
   }
 
+  if (payload.reservationId) {
+    reservationNumber = payload.reservationId;
+  }
+
+  if (payload.reservedTicket) {
+    travelers = [...new Set(payload.reservedTicket.map((ticket) => ticket.underName.name))]; // make a unique array
+    travelers = travelers.filter((traveler) => traveler); // remove empty names
+  }
+
   let displayData = {
     type: 'train',
     id: sift_id,
@@ -65,6 +76,9 @@ export const trainParser = (sift) => {
     subtitle: subTitle,
     emailTime: email_time,
     provider: providerName,
+    travelers,
+    reservationNumber,
+    trainNumber,
     dates: subTitle,
     vendor: payload['x-vendorId'],
     city: city,

@@ -80,7 +80,7 @@ export const billParser = (sift) => {
     price: price,
     emailSubject: emailSubject,
     paymentUrl: paymentUrl,
-    date: date,
+    dueDate: date,
     vendor: payload['x-vendorId'],
     displayData: displayData,
     uniqueId: createId(sift),

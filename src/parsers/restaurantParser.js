@@ -3,8 +3,8 @@ import moment from 'moment';
 export const restaurantParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
-  let vendor, date, time, ticket, reservation, startTime;
-  let providerName, restaurantName, title;
+  let vendor, date, time, reservation, startTime, partySize;
+  let providerName, restaurantName, title, address, phone;
   let subTitle = '';
   let displayTime = payload.startTime;
 
@@ -15,20 +15,15 @@ export const restaurantParser = (sift) => {
       }
     }
 
-    if (payload.reservedTicket) {
-      if (payload.reservedTicket[0]) {
-        if (payload.reservedTicket[0].url) {
-          ticket = payload.reservedTicket[0].url;
-        }
-      }
+    if (payload.partySize) {
+      partySize = payload.partySize;
     }
 
     if (payload.startTime) {
       startTime = payload.startTime;
-      date = moment(payload.startTime).format('dddd, MMM D');
-      time = moment(payload.startTime).format('h:mm a');
-      startTime = payload.startTime;
-      reservation = moment(payload.startTime);
+      date = moment(startTime).format('dddd, MMM D');
+      time = moment(startTime).format('h:mm a');
+      reservation = moment(startTime);
     } else if (payload.reservationFor.startDate) {
       startTime = payload.reservationFor.startDate;
       date = moment(payload.reservationFor.startDate).format('dddd, MMM D');
@@ -44,6 +39,8 @@ export const restaurantParser = (sift) => {
 
     if (payload.reservationFor) {
       restaurantName = payload.reservationFor.name;
+      address = payload.reservationFor.address;
+      phone = payload.reservationFor.telephone;
     }
   }
 
@@ -77,7 +74,6 @@ export const restaurantParser = (sift) => {
     vendor: vendor,
     date: date,
     time: time,
-    ticket: ticket,
     reservation: reservation,
   };
 
@@ -90,7 +86,9 @@ export const restaurantParser = (sift) => {
     startTime: startTime,
     date: date,
     time: time,
-    ticket: ticket,
+    phone: phone,
+    address: address,
+    partySize: partySize,
     restaurantName: restaurantName,
     vendor: payload['x-vendorId'],
     displayData: displayData,

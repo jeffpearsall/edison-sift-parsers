@@ -2,7 +2,8 @@ import moment from 'moment';
 
 export const purchaseParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
-  let title, emailSubject, price, orderDate, categories, itemOffered, primaryImage, date;
+  let title, emailSubject, price, orderDate, categories, itemOffered;
+  let primaryImage, date, orderNumber, items, currency, tax, total, shipping;
   let subTitle = '';
 
   // Title
@@ -23,15 +24,18 @@ export const purchaseParser = (sift) => {
     emailSubject = payload['x-emailSubject'];
   }
 
+  if (payload.orderNumber) {
+    orderNumber = payload.orderNumber;
+  }
+
   if (payload.acceptedOffer) {
+    items = payload.acceptedOffer.acceptedOffer;
     if (payload.acceptedOffer.length > 0) {
       if (payload.acceptedOffer[0].itemOffered) {
         itemOffered = payload.acceptedOffer[0].itemOffered.name;
       }
     }
-  }
 
-  if (payload.acceptedOffer) {
     categories = payload.acceptedOffer.map((item) => {
       if (!item) {
         return null;
@@ -79,6 +83,29 @@ export const purchaseParser = (sift) => {
     }
   }
 
+  // "x-priceCurrency": "USD",
+  // "x-tax": "$31.36",
+  // "@context": "http://schema.org",
+  // "x-price": "$474.98",
+  // "@type": "Order",
+  // "x-shipping": "$0.00"
+
+  if (payload['x-price']) {
+    total = String(payload['x-price']);
+  }
+
+  if (payload['x-tax']) {
+    tax = payload['x-tax'];
+  }
+
+  if (payload['x-priceCurrency']) {
+    currency = payload['x-priceCurrency'];
+  }
+
+  if (payload['x-shipping']) {
+    shipping = payload['x-shipping'];
+  }
+
   let displayData = {
     id: sift_id,
     type: 'purchase',
@@ -101,7 +128,13 @@ export const purchaseParser = (sift) => {
     subcategories: JSON.stringify(categories),
     itemOffered: itemOffered,
     date: date,
+    orderNumber: orderNumber,
     price: price,
+    total: total,
+    currency: currency,
+    tax: tax,
+    items: items,
+    shipping: shipping,
     vendor: sift.payload['x-vendorId'],
     displayData: displayData,
     primaryImage: primaryImage,

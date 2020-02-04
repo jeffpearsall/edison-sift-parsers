@@ -4,8 +4,13 @@ import parser from 'parse-address';
 export const hotelParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
-  let title, startTime, endTime, status, city;
+  let title, startTime, endTime, status, city, reservationNumber;
+  let hotelName, telephone, address, rooms, roomType, days, broker;
   let subTitle = '';
+
+  if (payload.broker) {
+    broker = payload.broker.name;
+  }
 
   if (payload.checkinTime) {
     startTime = payload.checkinTime;
@@ -28,8 +33,18 @@ export const hotelParser = (sift) => {
     subTitle = 'Hotel Stay';
   }
 
+  if (payload.reservationId) {
+    reservationNumber = payload.reservationId;
+  }
+
   if (payload.reservationFor) {
     title = payload.reservationFor.name;
+    hotelName = payload.reservationFor.name;
+    telephone = payload.reservationFor.telephone;
+    address = payload.reservationFor.address;
+    rooms = payload.reservationFor['x-rooms'];
+    roomType = payload.reservationFor['x-roomType'];
+    days = payload.reservationFor['x-days'];
 
     if (payload.reservationFor.address) {
       let humanAddress = parser.parseLocation(payload.reservationFor.address);
@@ -64,6 +79,14 @@ export const hotelParser = (sift) => {
     startTime: startTime,
     endTime: endTime,
     dates: subTitle,
+    reservationNumber,
+    hotelName,
+    telephone,
+    address,
+    rooms,
+    roomType,
+    days,
+    broker,
     destination: title,
     vendor: payload['x-vendorId'],
     displayData: displayData,

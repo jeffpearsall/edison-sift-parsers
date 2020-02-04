@@ -1,0 +1,116 @@
+{
+  "117290": {
+    "checkin_url": "https://flightbookings.airnewzealand.com/vmanage/actions/retrieve/webcheck",
+    "input_id": "pnr",
+    "input_name": "",
+    "airline": "Air New Zealand"
+  },
+  "117319": {
+    "checkin_url": "https://m.alaskaair.com/checkin",
+    "input_id": "ReservationLookup",
+    "input_name": "",
+    "airline": "Alaska Airlines"
+  },
+  "117399": {
+    "checkin_url": "https://www.aa.com/reservation/flightCheckInViewReservationsAccess.do?anchorLocation=DirectURL&title=check-in",
+    "input_id": "findReservationForm.recordLocator",
+    "input_name": "",
+    "airline": "American Airlines"
+  },
+  "118403": {
+    "checkin_url": "https://www.cathaypacific.com/olci/",
+    "input_id": "txtBookingRef",
+    "input_name": "",
+    "airline": "Cathay Pacific"
+  },
+  "119000": {
+    "checkin_url": "https://www.delta.com/PCCOciWeb/findBy.action",
+    "input_id": "confirmation",
+    "input_name": "",
+    "airline": "Delta Air Lines"
+  },
+  "119223": {
+    "checkin_url": "https://booking.evaair.com/flyeva/eva/b2c/manage-your-trip/log_in.aspx?lang=en-global",
+    "input_id": "MainContent_txt_BookingID",
+    "input_name": "",
+    "airline": "EVA Air"
+  },
+  "119326": {
+    "checkin_url": "https://mobile.emirates.com/english/CKIN/OLCI/flightInfo.xhtml",
+    "input_id": "bookingRef",
+    "input_name": "",
+    "airline": "Emirates"
+  },
+  "119740": {
+    "checkin_url": "https://www.flyfrontier.com/travel/my-trips/check-in/?mobile=true",
+    "input_id": "ConfirmationCode",
+    "input_name": "",
+    "airline": "Frontier Airlines"
+  },
+  "120197": {
+    "checkin_url": "https://www.hawaiianairlines.com/manage/check-in",
+    "input_id": "",
+    "input_name": "code_or_ticket",
+    "airline": "Hawaiian Airlines"
+  },
+  "122790": {
+    "checkin_url": "https://www.qantas.com/us/en.html?tabId=check-in",
+    "input_id": "input-6bm5akxq48",
+    "input_name": "",
+    "airline": "Qantas"
+  },
+  "122792": {
+    "checkin_url": "https://cki.qatarairways.com/cki/dashboard?qore=y",
+    "input_id": "last-name-automatically-pre-filled-2",
+    "input_name": "",
+    "airline": "Qatar Airways"
+  },
+  "123536": {
+    "checkin_url": "https://www.singaporeair.com/en_UK/plan-and-book/your-booking/checkin/",
+    "input_id": "booking-reference",
+    "input_name": "",
+    "airline": "Singapore Airlines"
+  },
+  "123698": {
+    "checkin_url": "https://mobile.southwest.com/check-in",
+    "input_id": "",
+    "input_name": "recordLocator",
+    "airline": "Southwest Airlines"
+  },
+  "123740": {
+    "checkin_url": "https://www.spirit.com/",
+    "input_id": "checkinConfirmationCode",
+    "input_name": "",
+    "airline": "Spirit Airlines"
+  },
+  "124732": {
+    "checkin_url": "https://www.united.com/travel/checkin/start.aspx",
+    "input_id": "nbr_id",
+    "input_name": "nbr_id",
+    "airline": "United Airlines"
+  },
+  "124906": {
+    "checkin_url": "https://check-in.virginaustralia.com/checkin/index.html#/login",
+    "input_id": "reservationNumber",
+    "input_name": "",
+    "airline": "Virgin Australia"
+  },
+  "126655": {
+    "checkin_url": "https://mobilecheckin.jetblue.com/checkin/check-in",
+    "input_id": "md-input-3",
+    "input_name": "",
+    "airline": "JetBlue"
+  },
+  "127914": {
+    "checkin_url": "https://checkin.si.amadeus.net/static/PRD/JL/#/checkin?ghAirline=JL&ln=en",
+    "input_id": "form_input_0",
+    "input_name": "",
+    "airline": "Japan Airlines"
+  },
+  "118998": {
+    "checkin_url": "https://www.delta.com/PCCOciWeb/findBy.action",
+    "input_id": "confirmation",
+    "input_name": "confirmationNumber",
+    "airline": "Delta"
+  }
+}

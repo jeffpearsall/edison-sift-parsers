@@ -14,7 +14,7 @@ moment.updateLocale('en', {
 export const packageParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
   let itemName, trackingNumber, trackingUrl, title, subTitle, status, shipperName, shipDate, vendor, images;
-
+  let items;
   let startTime, endTime, arrivalDate;
   let productImage = null;
 
@@ -36,6 +36,7 @@ export const packageParser = (sift) => {
 
   // Item Name and Image
   if (payload.itemShipped) {
+    items = payload.itemShipped;
     images = payload.itemShipped.map((item) => item.image);
 
     if (payload.itemShipped[0]) {
@@ -147,10 +148,12 @@ export const packageParser = (sift) => {
     primaryImage: productImage,
     displayData: displayData,
     images: images,
+    items: items,
     trackingUrl: trackingUrl,
     shipDate: shipDate,
     featuredImage: productImage,
     shipperName: shipperName,
+    broker: vendor,
     vendor: payload['x-vendorId'],
     uniqueId: createId(sift),
   };

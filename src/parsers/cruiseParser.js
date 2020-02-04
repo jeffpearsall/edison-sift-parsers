@@ -5,13 +5,18 @@ export const cruiseParser = (sift) => {
 
   let subTitle = '';
   let emailTime = email_time;
-  let title, brokerName, status, startTime;
+  let title, brokerName, status, startTime, reservationNumber, cruiseLine, phone, address;
 
   if (payload) {
     if (payload.broker) {
       if (payload.broker.name) {
         brokerName = payload.broker.name;
+        cruiseLine = payload.broker.name;
       }
+    }
+
+    if (payload.reservationId) {
+      reservationNumber = payload.reservationId;
     }
 
     if (brokerName) {
@@ -70,6 +75,10 @@ export const cruiseParser = (sift) => {
     destination: title,
     dates: subTitle,
     times: status ? status : ' ',
+    cruiseLine,
+    reservationNumber,
+    phone,
+    address,
     vendor: payload['x-vendorId'],
     displayData: displayData,
     uniqueId: createId(sift),

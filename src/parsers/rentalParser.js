@@ -6,11 +6,15 @@ export const rentalParser = (sift) => {
 
   let startTime = moment.unix(email_time);
   let carName, title, subTitle, pickupTime, dropoffTime, status, endTime, city;
+  let reservationNumber, pickupLocation, dropoffLocation, underName;
 
   if (payload.reservationFor) {
     if (payload.reservationFor.name) {
       carName = payload.reservationFor.name;
     }
+  }
+  if (payload.reservationId) {
+    reservationNumber = payload.reservationId;
   }
 
   if (payload.pickupTime) {
@@ -31,6 +35,18 @@ export const rentalParser = (sift) => {
   if (payload.pickupTime && payload.dropoffTime) {
     pickupTime = moment(payload.pickupTime).format('ddd, MMM DD');
     dropoffTime = moment(payload.dropoffTime).format('ddd, MMM DD');
+  }
+
+  if (payload.pickupLocation) {
+    pickupLocation = payload.pickupLocation.address;
+  }
+
+  if (payload.dropoffLocation) {
+    dropoffLocation = payload.dropoffLocation.address;
+  }
+
+  if (payload.underName) {
+    underName = payload.underName.name;
   }
 
   title = carName;
@@ -63,9 +79,13 @@ export const rentalParser = (sift) => {
     vendor: payload['x-vendorId'],
     pickupTime: pickupTime,
     dropoffTime: dropoffTime,
+    pickupLocation: pickupLocation,
+    dropoffLocation: dropoffLocation,
+    reservationNumber: reservationNumber,
     displayData: displayData,
     city: city,
-    name: carName,
+    carName: carName,
+    underName: underName,
     uniqueId: createId(sift),
   };
 };

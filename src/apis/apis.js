@@ -1,6 +1,7 @@
 import { getCityPhoto } from './teleportApi';
 import { getWikipediaImage } from './wikipediaImageApi';
 import AirportMapping from '../data/AirportMapping.json';
+import AirlineCheckinMapping from '../data/AirlineCheckinMapping.json';
 
 const EdisonEnvironmentUrls = {
   development: 'https://mail-engineering.easilydo.com',
@@ -152,6 +153,21 @@ export const getTravelImages = async (cities) => {
   return cityImages;
 };
 
+export const getTravelImage = async (city) => {
+  let image;
+  const teleportImage = await getCityPhoto(city);
+  if (!teleportImage) {
+    const wikiImage = await getWikipediaImage(city);
+    if (wikiImage) {
+      image = wikiImage;
+    }
+  } else {
+    image = teleportImage;
+  }
+
+  return image;
+};
+
 const getImages = async (cities, API) => {
   let uniquePlaces = Array.from(new Set(cities));
   let destinations = uniquePlaces.map((destination) => (destination ? API(destination) : null));
@@ -168,3 +184,4 @@ const getImages = async (cities, API) => {
 };
 
 export const getAirportMapping = () => AirportMapping;
+export const getAirlineCheckinMapping = () => AirlineCheckinMapping;

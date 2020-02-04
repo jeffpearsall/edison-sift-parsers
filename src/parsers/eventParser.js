@@ -3,7 +3,7 @@ import moment from 'moment';
 export const eventParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
 
-  let vendor, date, time, ticket, reservation;
+  let vendor, date, time, ticket, reservation, address, locationName;
   let startTime, eventName, title, ticketUrl;
   let subTitle = '';
 
@@ -49,6 +49,11 @@ export const eventParser = (sift) => {
       } else {
         subTitle = 'Upcoming Event';
       }
+
+      if (payload.reservationFor.location) {
+        address = payload.reservationFor.location.address;
+        locationName = payload.reservationFor.location.name;
+      }
     }
 
     if (payload.reservedTicket) {
@@ -84,6 +89,9 @@ export const eventParser = (sift) => {
     ticketUrl: ticketUrl,
     time: time,
     date: date,
+    address: address,
+    locationName: locationName,
+    provider: vendor,
     displayData: displayData,
     vendor: sift.payload['x-vendorId'],
     uniqueId: createId(sift),
