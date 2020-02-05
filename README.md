@@ -409,12 +409,13 @@ Returns: **Promise**
 Accepts array of cities and returns images for each city.
 
 ```javascript
-getTravelImages(cities);
+getTravelImages(cities, api);
 ```
 
 Arguments:
 
 - cities: Array
+- api: 'teleport' or 'wikipedia' (optional)
 
 Returns: **Promise**
 
@@ -422,10 +423,29 @@ Returns: **Promise**
 
 ---
 
+## getTravelImage
+
+Accept a city as a string and returns an image from either teleport or wikipedia.
+
+```javascript
+getTravelImages(city, api);
+```
+
+Arguments:
+
+- city: String
+- api: 'teleport' or 'wikipedia' (optional)
+
+Returns: **Promise**
+
+- success: Photo of the city.
+
+---
+
 ## getAirportMapping
 
 ```javascript
-getAirportMapping(cities);
+getAirportMapping();
 ```
 
 Returns: The mapping of IATA codes to addresses.
@@ -437,5 +457,9 @@ Returns: The mapping of IATA codes to addresses.
 ```javascript
 getAirlineCheckinMapping(vendorId);
 ```
+
+Arguments:
+
+- vendorId: The vendorId from the sift payload
 
 Returns: The url to check in, the name or id of the input field on the page, and the name of the airline for a specific vendor id.

@@ -6,7 +6,7 @@ export const getCityPhoto = async (city) => {
   }
 
   let url = encodeURI(`${apiUrl}?search=${city}`);
-  const request = await timeoutPromise(fetch(url), 500);
+  const request = await timeoutPromise(fetch(url), 800);
 
   if (request && request.ok) {
     const result = await request.json();
