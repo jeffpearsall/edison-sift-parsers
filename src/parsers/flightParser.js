@@ -85,7 +85,7 @@ export const flightParser = (sift) => {
       // Testing new parsing for flights
       let arrivalFound = false;
       payload.reservationFor.forEach((reservation, i) => {
-        const arrivalCity = arrivalCity;
+        const arrivalCity = reservation.arrivalAirport['x-cityName'];
         const arrivalRaw = reservation.arrivalAirport['x-rawName'];
         const arrivalIata = reservation.arrivalAirport.iataCode;
 
