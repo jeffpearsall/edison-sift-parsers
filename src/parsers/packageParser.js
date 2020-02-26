@@ -124,6 +124,7 @@ export const packageParser = (sift) => {
     id: sift_id,
     title: title,
     subtitle: subTitle,
+    backupIcon: 'packages',
     status: status,
     shipDate: shipDate,
     featuredImage: productImage,
@@ -136,7 +137,6 @@ export const packageParser = (sift) => {
 
   return {
     type: 'shipment',
-    backupIcon: 'packages',
     sift: sift,
     title: title,
     subtitle: subTitle,
