@@ -187,6 +187,14 @@ export const flightParser = (sift) => {
         }
       }
 
+      if (!title) {
+        if (payload['x-emailSubject']) {
+          title = payload['x-emailSubject'];
+        } else {
+          title = 'Flight';
+        }
+      }
+
       const checkinData = getCheckinData(payload['x-vendorId']);
 
       let displayData = {
