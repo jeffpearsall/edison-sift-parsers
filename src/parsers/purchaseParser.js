@@ -3,7 +3,8 @@ import moment from 'moment';
 export const purchaseParser = (sift) => {
   const { payload, email_time, sift_id } = sift;
   let title, emailSubject, price, orderDate, categories, itemOffered;
-  let primaryImage, date, orderNumber, items, currency, tax, total, shipping;
+  let primaryImage, date, orderNumber, currency, tax, total, shipping;
+  let items = [];
   let subTitle = '';
 
   // Title
@@ -29,7 +30,7 @@ export const purchaseParser = (sift) => {
   }
 
   if (payload.acceptedOffer) {
-    items = payload.acceptedOffer.acceptedOffer;
+    items = payload.acceptedOffer;
     if (payload.acceptedOffer.length > 0) {
       if (payload.acceptedOffer[0].itemOffered) {
         itemOffered = payload.acceptedOffer[0].itemOffered.name;
@@ -75,7 +76,7 @@ export const purchaseParser = (sift) => {
     subTitle = `Purchase on ${orderDate}`;
   }
 
-  if (payload.acceptedOffer[0]) {
+  if (payload.acceptedOffer && payload.acceptedOffer.length > 0) {
     if (payload.acceptedOffer[0].itemOffered) {
       if (payload.acceptedOffer[0].itemOffered.image) {
         primaryImage = payload.acceptedOffer[0].itemOffered.image;
