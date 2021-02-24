@@ -23,7 +23,7 @@ export const rentalParser = (sift) => {
 
   if (payload.dropoffLocation.address) {
     let humanAddress = parser.parseLocation(payload.dropoffLocation.address);
-    if (humanAddress.city && humanAddress.state) {
+    if (humanAddress && humanAddress.city && humanAddress.state) {
       city = `${humanAddress.city},${humanAddress.state}`;
     }
   }
